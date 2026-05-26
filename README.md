@@ -17,6 +17,14 @@ Upload documents. Ask anything. Get cited, confident answers in seconds.
 
 ---
 
+## Screenshots
+
+| Chat | Dashboard | Agent Workflows |
+|------|-----------|-----------------|
+| ![Chat](docs/screenshots/chat.png) | ![Dashboard](docs/screenshots/dashboard.png) | ![Agent](docs/screenshots/agent.png) |
+
+---
+
 ## What it does
 
 Nexa is a full-stack RAG platform where you upload **PDF, DOCX, or TXT** files and get:
