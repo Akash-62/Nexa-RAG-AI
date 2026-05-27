@@ -1,6 +1,7 @@
 import { useState, FormEvent, useRef, useEffect, useCallback } from "react";
 import { queryRAG, listDocuments, getSessionMessages } from "@/services/api";
 import { Send, FileText, ChevronDown, ChevronUp, Filter, AlertCircle, Sparkles, User, Trash2 } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface Citation {
   filename: string;
@@ -96,6 +97,7 @@ export default function ChatPage() {
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showClearModal, setShowClearModal] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const readyDocs = docs.filter((d) => d.status === "ready");
@@ -201,7 +203,7 @@ export default function ChatPage() {
         <div className="flex items-center gap-2">
         {messages.length > 0 && (
           <button
-            onClick={clearChat}
+            onClick={() => setShowClearModal(true)}
             title="Clear chat"
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border text-gray-500 hover:border-red-300 hover:text-red-500 transition-colors shrink-0"
           >
@@ -366,6 +368,15 @@ export default function ChatPage() {
           <Send size={17} strokeWidth={2.2} />
         </button>
       </form>
+
+      <ConfirmModal
+        open={showClearModal}
+        title="Clear chat"
+        message="This will delete all messages in this session. This cannot be undone."
+        confirmLabel="Clear chat"
+        onConfirm={() => { clearChat(); setShowClearModal(false); }}
+        onCancel={() => setShowClearModal(false)}
+      />
     </div>
   );
 }

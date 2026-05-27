@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, MessageSquare, Wand2, LogOut, Zap } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import clsx from "clsx";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -12,6 +14,7 @@ const navItems = [
 export default function Layout() {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   function handleLogout() {
     logout();
@@ -54,7 +57,7 @@ export default function Layout() {
           ))}
         </nav>
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutModal(true)}
           className="flex items-center gap-3 mx-3 mb-4 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-xl transition-all"
         >
           <LogOut size={16} strokeWidth={1.8} />
@@ -96,7 +99,7 @@ export default function Layout() {
             </NavLink>
           ))}
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutModal(true)}
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold tracking-wide text-gray-400"
           >
             <LogOut size={20} strokeWidth={1.8} />
@@ -104,6 +107,16 @@ export default function Layout() {
           </button>
         </nav>
       </div>
+
+      <ConfirmModal
+        open={showLogoutModal}
+        variant="logout"
+        title="Logout"
+        message="You'll need to sign in again to access your documents and chat history."
+        confirmLabel="Yes, logout"
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </div>
   );
 }
