@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef, DragEvent } from "react";
 import { listDocuments, uploadDocument, deleteDocument, getUsage } from "@/services/api";
 import { FileText, Trash2, Loader2, AlertCircle, UploadCloud } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import Toast, { ToastData } from "@/components/Toast";
 
 interface Doc {
   id: string;
@@ -62,7 +63,9 @@ export default function DashboardPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Doc | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevDocsRef = useRef<Doc[]>([]);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -94,9 +97,23 @@ export default function DashboardPage() {
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [docs, fetchAll]);
 
+  useEffect(() => {
+    const prev = prevDocsRef.current;
+    docs.forEach((doc) => {
+      if (doc.status === "ready") {
+        const wasPending = prev.some((p) => p.id === doc.id && (p.status === "pending" || p.status === "processing"));
+        if (wasPending) {
+          setToast({ type: "success", filename: doc.filename });
+        }
+      }
+    });
+    prevDocsRef.current = docs;
+  }, [docs]);
+
   async function handleFile(file: File) {
     setUploadError(null);
     setUploading(true);
+    setToast({ type: "processing", filename: file.name });
     try {
       await uploadDocument(file);
       await fetchAll();
@@ -260,6 +277,9 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Upload toast */}
+      <Toast toast={toast} onClose={() => setToast(null)} />
 
       {/* Delete confirmation modal */}
       <ConfirmModal
