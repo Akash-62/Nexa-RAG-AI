@@ -29,102 +29,82 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-600 to-brand-800 flex-col items-center justify-center p-12 text-white">
-        <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-6">
-          <Zap size={32} className="text-white" />
-        </div>
-        <h1 className="text-4xl font-bold mb-3">Nexa RAG AI</h1>
-        <p className="text-brand-100 text-center text-lg max-w-sm leading-relaxed">
-          Document intelligence powered by RAG. Upload files, ask anything, get cited answers.
-        </p>
-        <div className="mt-12 space-y-4 w-full max-w-sm">
-          {["Cited answers from your documents", "AI agents that summarize & compare", "Multi-turn memory across sessions"].map((f) => (
-            <div key={f} className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3 text-sm">
-              <span className="w-2 h-2 rounded-full bg-brand-300 shrink-0" />
-              {f}
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-brand-900">
+      {/* Background orbs */}
+      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-brand-500 rounded-full opacity-20 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-purple-500 rounded-full opacity-20 blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600 rounded-full opacity-10 blur-[120px] pointer-events-none" />
 
-      {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-gray-50">
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center">
-              <Zap size={18} className="text-white" />
-            </div>
-            <span className="font-bold text-lg">Nexa RAG AI</span>
+      {/* Glass card */}
+      <div className="relative w-full max-w-md mx-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 sm:p-10">
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center border border-white/30">
+            <Zap size={20} className="text-white" />
+          </div>
+          <span className="text-white font-bold text-xl tracking-tight">Nexa RAG AI</span>
+        </div>
+
+        <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
+        <p className="text-white/50 text-sm mb-7">Sign in to continue to your workspace</p>
+
+        {error && (
+          <div className="flex items-start gap-2.5 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 mb-5 text-sm text-red-200">
+            <AlertCircle size={15} className="shrink-0 mt-0.5" />
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
+            />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h2>
-            <p className="text-sm text-gray-500 mb-7">Sign in to your account to continue</p>
-
-            {error && (
-              <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5 text-sm text-red-700">
-                <AlertCircle size={15} className="shrink-0 mt-0.5" />
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1.5">Email address</label>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 focus:bg-white transition-colors"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-medium text-gray-700">Password</label>
-                </div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full border rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 focus:bg-white transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
+          <div>
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
+              />
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-brand-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-700 disabled:opacity-60 transition-all shadow-sm hover:shadow-md active:scale-[0.99] mt-2"
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                tabIndex={-1}
               >
-                {loading ? "Signing in…" : "Sign in"}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-            </form>
-
-            <p className="text-center text-sm text-gray-500 mt-6">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-brand-600 font-semibold hover:underline">
-                Create one
-              </Link>
-            </p>
+            </div>
           </div>
-        </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-2 bg-white text-brand-700 py-3 rounded-xl text-sm font-bold hover:bg-white/90 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
+          >
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-white/40 mt-7">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-white font-semibold hover:text-white/80 transition-colors">
+            Create one
+          </Link>
+        </p>
       </div>
     </div>
   );
