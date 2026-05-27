@@ -129,7 +129,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8 max-w-5xl mx-auto overflow-y-auto h-full">
+    <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-8 max-w-5xl mx-auto w-full">
       <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
       <p className="text-sm text-gray-400 mb-6 sm:mb-8">Manage your documents and view usage stats</p>
 

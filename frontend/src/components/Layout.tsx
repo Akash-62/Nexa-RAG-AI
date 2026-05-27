@@ -31,7 +31,6 @@ export default function Layout() {
             <span className="font-bold text-base tracking-tight text-gray-900">Nexa RAG</span>
           </div>
         </div>
-
         <nav className="flex-1 py-4 space-y-0.5 px-3">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
@@ -41,9 +40,7 @@ export default function Layout() {
               className={({ isActive }) =>
                 clsx(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                  isActive
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                  isActive ? "bg-brand-50 text-brand-700" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                 )
               }
             >
@@ -56,7 +53,6 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
-
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 mx-3 mb-4 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-xl transition-all"
@@ -66,15 +62,19 @@ export default function Layout() {
         </button>
       </aside>
 
-      {/* ── Content + mobile nav ── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-hidden flex flex-col md:pb-0 pb-16">
+      {/* ── Right panel ── */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        {/* Page content */}
+        <main className="flex-1 overflow-hidden flex flex-col min-h-0">
           <Outlet />
         </main>
 
-        {/* ── Mobile bottom nav ── */}
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 flex items-stretch safe-bottom"
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {/* ── Mobile bottom nav (in flex flow, not fixed) ── */}
+        <nav
+          className="md:hidden shrink-0 bg-white border-t border-gray-100 flex items-stretch"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)", height: "calc(56px + env(safe-area-inset-bottom))" }}
+        >
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -82,7 +82,7 @@ export default function Layout() {
               end={end}
               className={({ isActive }) =>
                 clsx(
-                  "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-semibold tracking-wide transition-colors",
+                  "flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold tracking-wide transition-colors",
                   isActive ? "text-brand-600" : "text-gray-400"
                 )
               }
@@ -97,7 +97,7 @@ export default function Layout() {
           ))}
           <button
             onClick={handleLogout}
-            className="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-semibold tracking-wide text-gray-400"
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold tracking-wide text-gray-400"
           >
             <LogOut size={20} strokeWidth={1.8} />
             <span>Logout</span>
