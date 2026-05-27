@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -13,37 +13,43 @@ export default function ConfirmModal({ open, title, message, confirmLabel = "Del
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onCancel}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-red-500" />
+      {/* Modal — bottom sheet on mobile, centered on desktop */}
+      <div className="relative bg-white w-full sm:max-w-sm sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden">
+        {/* Close button */}
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition-colors"
+        >
+          <X size={18} />
+        </button>
+
+        <div className="px-6 pt-6 pb-2">
+          {/* Icon */}
+          <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
+            <Trash2 size={22} className="text-red-500" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-base font-semibold text-gray-900">{title}</h2>
-            <p className="text-sm text-gray-500 mt-1 leading-relaxed">{message}</p>
-          </div>
+
+          <h2 className="text-lg font-bold text-gray-900 leading-tight">{title}</h2>
+          <p className="text-sm text-gray-500 mt-2 leading-relaxed">{message}</p>
         </div>
 
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
+        {/* Buttons */}
+        <div className="flex flex-col gap-2 px-6 py-5">
           <button
             onClick={onConfirm}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-sm font-semibold text-white hover:bg-red-600 transition-colors shadow-sm"
+            className="w-full py-3 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm"
           >
             {confirmLabel}
+          </button>
+          <button
+            onClick={onCancel}
+            className="w-full py-3 rounded-xl bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 active:scale-[0.98] transition-all"
+          >
+            Cancel
           </button>
         </div>
       </div>
