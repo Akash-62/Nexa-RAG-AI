@@ -1,11 +1,13 @@
 import { useState, FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { Eye, EyeOff, Zap, AlertCircle } from "lucide-react";
 import { login } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { setToken } = useAuth();
@@ -19,49 +21,110 @@ export default function LoginPage() {
       const res = await login(email, password);
       setToken(res.data.access_token);
       navigate("/");
-    } catch {
-      setError("Invalid email or password");
+    } catch (err: any) {
+      setError(err?.response?.data?.detail ?? "Invalid email or password");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-6 text-center">Sign in to Nexa RAG</h1>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-brand-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-brand-700 disabled:opacity-60"
-          >
-            {loading ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-        <p className="text-center text-sm text-gray-500 mt-4">
-          No account?{" "}
-          <Link to="/register" className="text-brand-600 font-medium">
-            Register
-          </Link>
+    <div className="min-h-screen flex">
+      {/* Left panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-600 to-brand-800 flex-col items-center justify-center p-12 text-white">
+        <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-6">
+          <Zap size={32} className="text-white" />
+        </div>
+        <h1 className="text-4xl font-bold mb-3">Nexa RAG AI</h1>
+        <p className="text-brand-100 text-center text-lg max-w-sm leading-relaxed">
+          Document intelligence powered by RAG. Upload files, ask anything, get cited answers.
         </p>
+        <div className="mt-12 space-y-4 w-full max-w-sm">
+          {["Cited answers from your documents", "AI agents that summarize & compare", "Multi-turn memory across sessions"].map((f) => (
+            <div key={f} className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3 text-sm">
+              <span className="w-2 h-2 rounded-full bg-brand-300 shrink-0" />
+              {f}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right panel */}
+      <div className="flex-1 flex items-center justify-center p-6 bg-gray-50">
+        <div className="w-full max-w-md">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 mb-8 lg:hidden">
+            <div className="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center">
+              <Zap size={18} className="text-white" />
+            </div>
+            <span className="font-bold text-lg">Nexa RAG AI</span>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h2>
+            <p className="text-sm text-gray-500 mb-7">Sign in to your account to continue</p>
+
+            {error && (
+              <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5 text-sm text-red-700">
+                <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">Email address</label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 focus:bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-gray-700">Password</label>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full border rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50 focus:bg-white transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-brand-600 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-700 disabled:opacity-60 transition-all shadow-sm hover:shadow-md active:scale-[0.99] mt-2"
+              >
+                {loading ? "Signing in…" : "Sign in"}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-gray-500 mt-6">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-brand-600 font-semibold hover:underline">
+                Create one
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
