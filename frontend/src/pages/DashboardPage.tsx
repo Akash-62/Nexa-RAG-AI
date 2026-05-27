@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef, DragEvent } from "react";
 import { listDocuments, uploadDocument, deleteDocument, getUsage } from "@/services/api";
 import { FileText, Trash2, Loader2, AlertCircle, UploadCloud } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface Doc {
   id: string;
@@ -39,12 +40,18 @@ const STATUS_COLOR: Record<string, string> = {
   processing: "text-yellow-500",
 };
 
+function StatSkeleton() {
+  return <div className="bg-white rounded-xl border p-4 shadow-sm animate-pulse"><div className="h-3 w-16 bg-gray-100 rounded mb-3" /><div className="h-7 w-10 bg-gray-200 rounded" /></div>;
+}
+
 export default function DashboardPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Doc | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchAll = useCallback(async () => {
@@ -53,28 +60,25 @@ export default function DashboardPage() {
       setDocs(d.data.documents ?? []);
       setUsage(u.data);
     } catch {
-      // silently ignore — user will see stale data
+      // silently ignore
+    } finally {
+      setInitialLoading(false);
     }
   }, []);
 
-  // Poll while any document is still processing
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
   useEffect(() => {
-    const hasPending = docs.some(
-      (d) => d.status === "pending" || d.status === "processing"
-    );
+    const hasPending = docs.some((d) => d.status === "pending" || d.status === "processing");
     if (hasPending && !pollRef.current) {
       pollRef.current = setInterval(fetchAll, 3000);
     } else if (!hasPending && pollRef.current) {
       clearInterval(pollRef.current);
       pollRef.current = null;
     }
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [docs, fetchAll]);
 
   async function handleFile(file: File) {
@@ -86,10 +90,8 @@ export default function DashboardPage() {
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
       setUploadError(
-        typeof detail === "string"
-          ? detail
-          : Array.isArray(detail)
-          ? detail.map((d: any) => d.msg).join(", ")
+        typeof detail === "string" ? detail
+          : Array.isArray(detail) ? detail.map((d: any) => d.msg).join(", ")
           : "Upload failed. Check file type and size."
       );
     } finally {
@@ -103,15 +105,8 @@ export default function DashboardPage() {
     e.target.value = "";
   }
 
-  function onDragOver(e: DragEvent) {
-    e.preventDefault();
-    setDragging(true);
-  }
-
-  function onDragLeave() {
-    setDragging(false);
-  }
-
+  function onDragOver(e: DragEvent) { e.preventDefault(); setDragging(true); }
+  function onDragLeave() { setDragging(false); }
   function onDrop(e: DragEvent) {
     e.preventDefault();
     setDragging(false);
@@ -119,14 +114,23 @@ export default function DashboardPage() {
     if (file) handleFile(file);
   }
 
-  async function handleDelete(id: string) {
+  async function confirmDelete() {
+    if (!deleteTarget) return;
     try {
-      await deleteDocument(id);
-      setDocs((d) => d.filter((doc) => doc.id !== id));
-    } catch {
-      // leave list unchanged; the server will respond next poll
-    }
+      await deleteDocument(deleteTarget.id);
+      setDocs((d) => d.filter((doc) => doc.id !== deleteTarget.id));
+    } catch { }
+    setDeleteTarget(null);
   }
+
+  const stats = [
+    { label: "Documents", value: docs.length },
+    { label: "Messages", value: usage?.total_messages ?? "—" },
+    { label: "Agent Runs", value: usage?.total_agent_runs ?? "—" },
+    { label: "Tokens Used", value: usage != null ? usage.total_tokens.toLocaleString() : "—" },
+    { label: "Avg Latency", value: usage != null ? `${usage.avg_latency_ms} ms` : "—" },
+    { label: "Est. Cost", value: usage != null ? `$${usage.estimated_cost_usd.toFixed(4)}` : "—" },
+  ];
 
   return (
     <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-8 max-w-5xl mx-auto w-full">
@@ -135,28 +139,14 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        {[
-          { label: "Documents", value: docs.length },
-          { label: "Messages", value: usage?.total_messages ?? "—" },
-          { label: "Agent Runs", value: usage?.total_agent_runs ?? "—" },
-          {
-            label: "Tokens Used",
-            value: usage != null ? (usage.total_tokens).toLocaleString() : "—",
-          },
-          {
-            label: "Avg Latency",
-            value: usage != null ? `${usage.avg_latency_ms} ms` : "—",
-          },
-          {
-            label: "Est. Cost",
-            value: usage != null ? `$${usage.estimated_cost_usd.toFixed(4)}` : "—",
-          },
-        ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-xl border p-4 shadow-sm">
-            <p className="text-xs text-gray-500 mb-1">{label}</p>
-            <p className="text-2xl font-semibold">{value}</p>
-          </div>
-        ))}
+        {initialLoading
+          ? Array.from({ length: 6 }).map((_, i) => <StatSkeleton key={i} />)
+          : stats.map(({ label, value }) => (
+            <div key={label} className="bg-white rounded-xl border p-4 shadow-sm">
+              <p className="text-xs text-gray-500 mb-1">{label}</p>
+              <p className="text-2xl font-semibold">{value}</p>
+            </div>
+          ))}
       </div>
 
       {/* Upload zone */}
@@ -165,28 +155,17 @@ export default function DashboardPage() {
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={`mb-6 border-2 border-dashed rounded-2xl p-6 transition-colors ${
-          dragging
-            ? "border-brand-500 bg-brand-50"
-            : "border-gray-200 hover:border-gray-300 bg-white"
+          dragging ? "border-brand-500 bg-brand-50" : "border-gray-200 hover:border-gray-300 bg-white"
         }`}
       >
         <div className="flex flex-col items-center gap-3 text-center">
-          <UploadCloud
-            size={32}
-            className={dragging ? "text-brand-500" : "text-gray-300"}
-          />
+          <UploadCloud size={32} className={dragging ? "text-brand-500" : "text-gray-300"} />
           <div>
             <p className="text-sm text-gray-600">
               Drag & drop a file here, or{" "}
               <label className="text-brand-600 font-medium cursor-pointer hover:underline">
                 browse
-                <input
-                  type="file"
-                  accept=".pdf,.docx,.txt"
-                  onChange={handleInputChange}
-                  disabled={uploading}
-                  className="hidden"
-                />
+                <input type="file" accept=".pdf,.docx,.txt" onChange={handleInputChange} disabled={uploading} className="hidden" />
               </label>
             </p>
             <p className="text-xs text-gray-400 mt-1">PDF, DOCX, or TXT up to 50 MB</p>
@@ -209,7 +188,11 @@ export default function DashboardPage() {
 
       {/* Document list */}
       <div className="bg-white rounded-xl border shadow-sm divide-y">
-        {docs.length === 0 ? (
+        {initialLoading ? (
+          <div className="py-14 flex items-center justify-center">
+            <Loader2 size={20} className="animate-spin text-gray-300" />
+          </div>
+        ) : docs.length === 0 ? (
           <p className="text-center text-gray-400 py-14 text-sm">
             No documents yet — upload your first file above.
           </p>
@@ -220,8 +203,7 @@ export default function DashboardPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{doc.filename}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {doc.file_type.toUpperCase()} · {doc.chunk_count} chunk
-                  {doc.chunk_count !== 1 ? "s" : ""} ·{" "}
+                  {doc.file_type.toUpperCase()} · {doc.chunk_count} chunk{doc.chunk_count !== 1 ? "s" : ""} ·{" "}
                   <span className={STATUS_COLOR[doc.status] ?? "text-gray-400"}>
                     {doc.status}
                     {(doc.status === "pending" || doc.status === "processing") && (
@@ -231,8 +213,8 @@ export default function DashboardPage() {
                 </p>
               </div>
               <button
-                onClick={() => handleDelete(doc.id)}
-                className="text-gray-300 hover:text-red-500 transition-colors"
+                onClick={() => setDeleteTarget(doc)}
+                className="text-gray-300 hover:text-red-500 transition-colors p-1"
                 title="Delete document"
               >
                 <Trash2 size={15} />
@@ -244,7 +226,7 @@ export default function DashboardPage() {
 
       {/* Recent LLM activity */}
       {usage && usage.recent_operations.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 mb-4">
           <h2 className="text-sm font-semibold mb-3 text-gray-700">Recent LLM Activity</h2>
           <div className="bg-white rounded-xl border shadow-sm divide-y">
             {usage.recent_operations.map((op, i) => (
@@ -262,6 +244,16 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Delete document"
+        message={`Are you sure you want to delete "${deleteTarget?.filename}"? This will remove all associated embeddings and cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
