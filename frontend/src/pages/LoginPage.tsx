@@ -15,8 +15,14 @@ export default function LoginPage() {
   const { setToken } = useAuth();
   const navigate = useNavigate();
 
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!emailValid) {
+      setError("Please enter a valid email address (e.g. you@example.com)");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -67,13 +73,17 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</label>
               <input
-                type="email"
+                type="text"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all bg-gray-50 hover:bg-white"
+                className={`w-full border rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 transition-all bg-gray-50 hover:bg-white ${
+                  email && !emailValid
+                    ? "border-red-300 focus:ring-red-200 focus:border-red-400"
+                    : "border-gray-200 focus:ring-brand-500/20 focus:border-brand-400"
+                }`}
               />
             </div>
 
