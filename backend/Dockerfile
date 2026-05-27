@@ -16,4 +16,7 @@ COPY . .
 
 RUN mkdir -p uploads && chmod +x start.sh
 
+# Pre-download embedding model so it's cached in the image (no download at runtime)
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
 CMD ["./start.sh"]
