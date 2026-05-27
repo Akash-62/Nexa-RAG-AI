@@ -29,83 +29,87 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-brand-900">
-      {/* Background orbs */}
-      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-brand-500 rounded-full opacity-20 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-purple-500 rounded-full opacity-20 blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600 rounded-full opacity-10 blur-[120px] pointer-events-none" />
-
-      {/* Glass card */}
-      <div className="relative w-full max-w-md mx-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 sm:p-10">
-        {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center border border-white/30">
-            <Zap size={20} className="text-white" />
-          </div>
-          <span className="text-white font-bold text-xl tracking-tight">Nexa RAG AI</span>
+    <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center justify-center px-4">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 mb-8">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-md">
+          <Zap size={18} className="text-white" />
         </div>
-
-        <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-        <p className="text-white/50 text-sm mb-7">Sign in to continue to your workspace</p>
-
-        {error && (
-          <div className="flex items-start gap-2.5 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 mb-5 text-sm text-red-200">
-            <AlertCircle size={15} className="shrink-0 mt-0.5" />
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">Email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 bg-white text-brand-700 py-3 rounded-xl text-sm font-bold hover:bg-white/90 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
-          >
-            {loading ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-white/40 mt-7">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-white font-semibold hover:text-white/80 transition-colors">
-            Create one
-          </Link>
-        </p>
+        <span className="text-lg font-bold text-gray-900 tracking-tight">Nexa RAG AI</span>
       </div>
+
+      {/* Card */}
+      <div className="w-full max-w-[400px] bg-white rounded-2xl shadow-[0_2px_24px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+        {/* Top accent */}
+        <div className="h-1 w-full bg-gradient-to-r from-brand-500 via-purple-500 to-indigo-500" />
+
+        <div className="px-8 py-8">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Welcome back</h1>
+          <p className="text-sm text-gray-400 mt-1 mb-7">Sign in to your Nexa workspace</p>
+
+          {error && (
+            <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-3 mb-5 text-sm text-red-600">
+              <AlertCircle size={15} className="shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all bg-gray-50 hover:bg-white"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-11 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all bg-gray-50 hover:bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-brand-600 to-purple-600 text-white py-3 rounded-xl text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-all shadow-md hover:shadow-lg active:scale-[0.98] mt-1"
+            >
+              {loading ? "Signing in…" : "Sign in →"}
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-gray-400 mt-6">
+            No account?{" "}
+            <Link to="/register" className="text-brand-600 font-semibold hover:text-brand-700">
+              Create one free
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-6 text-xs text-gray-300">Nexa RAG AI · Document Intelligence Platform</p>
     </div>
   );
 }
