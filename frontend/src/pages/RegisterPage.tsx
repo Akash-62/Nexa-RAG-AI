@@ -2,7 +2,6 @@ import { useState, FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Zap, AlertCircle } from "lucide-react";
 import { register } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -11,7 +10,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setToken } = useAuth();
   const navigate = useNavigate();
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
@@ -24,9 +22,8 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await register(name, email, password);
-      setToken(res.data.access_token);
-      navigate("/");
+      await register(name, email, password);
+      navigate("/login", { state: { email, registered: true } });
     } catch (err: any) {
       setError(err?.response?.data?.detail ?? "Registration failed. Please try again.");
     } finally {

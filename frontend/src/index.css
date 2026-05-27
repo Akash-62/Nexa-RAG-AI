@@ -3,7 +3,23 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+  }
+
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
+    min-height: 100%;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Hide scrollbars globally */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
   }
 }

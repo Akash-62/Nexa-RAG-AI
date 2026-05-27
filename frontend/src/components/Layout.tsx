@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, MessageSquare, Wand2, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Wand2, LogOut, Zap } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import clsx from "clsx";
 
@@ -13,7 +12,6 @@ const navItems = [
 export default function Layout() {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   function handleLogout() {
     logout();
@@ -21,13 +19,20 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-[100dvh] overflow-hidden">
+
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden md:flex w-56 flex-col bg-gray-900 text-white shrink-0">
-        <div className="px-5 py-5 border-b border-gray-700">
-          <span className="font-bold text-lg tracking-tight">Nexa RAG</span>
+      <aside className="hidden md:flex w-56 flex-col bg-white border-r border-gray-100 shrink-0">
+        <div className="px-5 py-5 border-b border-gray-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-sm">
+              <Zap size={15} className="text-white" />
+            </div>
+            <span className="font-bold text-base tracking-tight text-gray-900">Nexa RAG</span>
+          </div>
         </div>
-        <nav className="flex-1 py-4 space-y-1 px-2">
+
+        <nav className="flex-1 py-4 space-y-0.5 px-3">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -35,78 +40,69 @@ export default function Layout() {
               end={end}
               className={({ isActive }) =>
                 clsx(
-                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                  isActive ? "bg-brand-600 text-white" : "text-gray-300 hover:bg-gray-700"
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-brand-50 text-brand-700"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                 )
               }
             >
-              <Icon size={16} />
-              {label}
+              {({ isActive }) => (
+                <>
+                  <Icon size={16} strokeWidth={isActive ? 2.5 : 1.8} />
+                  {label}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
+
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-5 py-4 text-sm text-gray-400 hover:text-white border-t border-gray-700 transition-colors"
+          className="flex items-center gap-3 mx-3 mb-4 px-3 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-xl transition-all"
         >
-          <LogOut size={16} /> Logout
+          <LogOut size={16} strokeWidth={1.8} />
+          Logout
         </button>
       </aside>
 
-      {/* ── Mobile drawer overlay ── */}
-      {drawerOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div className="w-64 bg-gray-900 text-white flex flex-col">
-            <div className="px-5 py-4 border-b border-gray-700 flex items-center justify-between">
-              <span className="font-bold text-lg tracking-tight">Nexa RAG</span>
-              <button onClick={() => setDrawerOpen(false)}>
-                <X size={18} className="text-gray-400 hover:text-white" />
-              </button>
-            </div>
-            <nav className="flex-1 py-4 space-y-1 px-2">
-              {navItems.map(({ to, label, icon: Icon, end }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={end}
-                  onClick={() => setDrawerOpen(false)}
-                  className={({ isActive }) =>
-                    clsx(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                      isActive ? "bg-brand-600 text-white" : "text-gray-300 hover:bg-gray-700"
-                    )
-                  }
-                >
-                  <Icon size={16} />
-                  {label}
-                </NavLink>
-              ))}
-            </nav>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-5 py-4 text-sm text-gray-400 hover:text-white border-t border-gray-700 transition-colors"
-            >
-              <LogOut size={16} /> Logout
-            </button>
-          </div>
-          {/* Backdrop */}
-          <div className="flex-1 bg-black/50" onClick={() => setDrawerOpen(false)} />
-        </div>
-      )}
-
-      {/* ── Right panel (top bar + content) ── */}
+      {/* ── Content + mobile nav ── */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile top bar */}
-        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-gray-900 text-white shrink-0">
-          <span className="font-bold text-base tracking-tight">Nexa RAG</span>
-          <button onClick={() => setDrawerOpen(true)} aria-label="Open menu">
-            <Menu size={20} />
-          </button>
-        </header>
-
-        <main className="flex-1 overflow-auto bg-gray-50">
+        <main className="flex-1 overflow-hidden flex flex-col md:pb-0 pb-16">
           <Outlet />
         </main>
+
+        {/* ── Mobile bottom nav ── */}
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-100 flex items-stretch safe-bottom"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+          {navItems.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                clsx(
+                  "flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-semibold tracking-wide transition-colors",
+                  isActive ? "text-brand-600" : "text-gray-400"
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                  <span>{label}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
+          <button
+            onClick={handleLogout}
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-semibold tracking-wide text-gray-400"
+          >
+            <LogOut size={20} strokeWidth={1.8} />
+            <span>Logout</span>
+          </button>
+        </nav>
       </div>
     </div>
   );

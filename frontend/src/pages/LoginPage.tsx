@@ -1,11 +1,13 @@
 import { useState, FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, Zap, AlertCircle } from "lucide-react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Eye, EyeOff, Zap, AlertCircle, CheckCircle2 } from "lucide-react";
 import { login } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const prefill = (location.state as any) ?? {};
+  const [email, setEmail] = useState(prefill.email ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -46,6 +48,13 @@ export default function LoginPage() {
         <div className="px-8 py-8">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Welcome back</h1>
           <p className="text-sm text-gray-400 mt-1 mb-7">Sign in to your Nexa workspace</p>
+
+          {prefill.registered && (
+            <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-3.5 py-3 mb-5 text-sm text-green-700">
+              <CheckCircle2 size={15} className="shrink-0" />
+              Account created! Sign in to continue.
+            </div>
+          )}
 
           {error && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-3 mb-5 text-sm text-red-600">

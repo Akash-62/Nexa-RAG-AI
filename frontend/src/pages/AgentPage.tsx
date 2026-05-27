@@ -184,7 +184,7 @@ export default function AgentPage() {
   const readyDocs = docs.filter((d) => d.status === "ready");
 
   return (
-    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto overflow-y-auto h-full">
       <h1 className="text-2xl font-bold mb-1">Agent Workflows</h1>
       <p className="text-sm text-gray-400 mb-6 sm:mb-8">
         Run intelligent document tasks powered by LangGraph
