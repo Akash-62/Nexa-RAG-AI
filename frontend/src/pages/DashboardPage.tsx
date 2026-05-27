@@ -44,10 +44,20 @@ function StatSkeleton() {
   return <div className="bg-white rounded-xl border p-4 shadow-sm animate-pulse"><div className="h-3 w-16 bg-gray-100 rounded mb-3" /><div className="h-7 w-10 bg-gray-200 rounded" /></div>;
 }
 
+function loadCache() {
+  try {
+    const raw = localStorage.getItem("dashboard_cache");
+    if (!raw) return null;
+    return JSON.parse(raw) as { docs: Doc[]; usage: Usage };
+  } catch { return null; }
+}
+
 export default function DashboardPage() {
-  const [docs, setDocs] = useState<Doc[]>([]);
-  const [usage, setUsage] = useState<Usage | null>(null);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const cached = loadCache();
+  const [docs, setDocs] = useState<Doc[]>(cached?.docs ?? []);
+  const [usage, setUsage] = useState<Usage | null>(cached?.usage ?? null);
+  const [initialLoading, setInitialLoading] = useState(!cached);
+  const [refreshing, setRefreshing] = useState(!!cached);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -57,12 +67,15 @@ export default function DashboardPage() {
   const fetchAll = useCallback(async () => {
     try {
       const [d, u] = await Promise.all([listDocuments(), getUsage()]);
-      setDocs(d.data.documents ?? []);
-      setUsage(u.data);
+      const fresh = { docs: d.data.documents ?? [], usage: u.data };
+      setDocs(fresh.docs);
+      setUsage(fresh.usage);
+      localStorage.setItem("dashboard_cache", JSON.stringify(fresh));
     } catch {
-      // silently ignore
+      // silently ignore — cached data still visible
     } finally {
       setInitialLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -134,7 +147,10 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-8 max-w-5xl mx-auto w-full">
-      <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
+      <div className="flex items-center gap-3 mb-2">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        {refreshing && <Loader2 size={16} className="animate-spin text-gray-300" />}
+      </div>
       <p className="text-sm text-gray-400 mb-6 sm:mb-8">Manage your documents and view usage stats</p>
 
       {/* Stats */}
